@@ -3,8 +3,8 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "zkPay",
-  description: "Private payments on Stellar",
+  title: "zkAuth SDK Demo",
+  description: "Zero-knowledge identity and private transactions on Stellar — @supreme2580/zkauth",
 };
 
 export default function RootLayout({
