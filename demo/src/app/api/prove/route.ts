@@ -1,27 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { execSync } from 'child_process';
 import { existsSync, mkdtempSync, writeFileSync, readFileSync, readdirSync, rmSync } from 'fs';
-import { join, dirname, resolve } from 'path';
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-function findProjectRoot(start: string): string {
-  let current = start;
-  while (current !== '/') {
-    if (existsSync(join(current, 'package.json'))) {
-      return current;
+// Try multiple possible paths to find bb and circuit
+function findAsset(relativePath: string): string {
+  const possibleRoots = [
+    process.cwd(),
+    dirname(dirname(dirname(dirname(dirname(__dirname))))),
+    dirname(dirname(dirname(dirname(__dirname)))),
+    dirname(dirname(dirname(__dirname))),
+    dirname(dirname(__dirname)),
+    dirname(__dirname),
+    __dirname,
+  ];
+
+  for (const root of possibleRoots) {
+    const fullPath = join(root, relativePath);
+    if (existsSync(fullPath)) {
+      return fullPath;
     }
-    current = dirname(current);
   }
-  return start;
+  throw new Error(`Could not find ${relativePath} in any known location`);
 }
 
-const demoProjectRoot = findProjectRoot(__dirname);
-
 const bbPath =
-  process.env.BB_PATH || join(demoProjectRoot, 'bin', 'bb');
+  process.env.BB_PATH || findAsset('bin/bb');
 
 export async function POST(req: NextRequest) {
   const { witness } = await req.json();
@@ -44,7 +52,7 @@ export async function POST(req: NextRequest) {
     writeFileSync(witnessPath, Buffer.from(witness, 'base64'));
 
     // Copy circuit to tmp dir so Next.js file watcher doesn't interfere with bb
-    const circuitPath = join(demoProjectRoot, 'public', 'circuit.json');
+    const circuitPath = findAsset('public/circuit.json');
     const circuitTmpPath = join(tmpDir, 'circuit.json');
     console.log('[zkPay-prove] circuitPath:', circuitPath);
     writeFileSync(circuitTmpPath, readFileSync(circuitPath));
