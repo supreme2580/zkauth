@@ -3,16 +3,17 @@ import { join } from 'path';
 import { platform, arch } from 'os';
 import { execSync } from 'child_process';
 
-const BB_VERSION = process.env.BB_VERSION || '0.82.2';
+const BB_VERSION = process.env.BB_VERSION || '0.87.0';
 const BB_DIR = join(process.cwd(), '.bb');
 
 function getPlatformTag(): string {
   const p = platform();
   const a = arch();
+  // BB releases use amd64/arm64 and darwin/linux naming
   if (p === 'darwin' && a === 'arm64') return 'arm64-darwin';
-  if (p === 'darwin' && a === 'x64') return 'x86_64-darwin';
+  if (p === 'darwin' && a === 'x64') return 'amd64-darwin';
   if (p === 'linux' && a === 'arm64') return 'arm64-linux';
-  if (p === 'linux' && a === 'x64') return 'x86_64-linux';
+  if (p === 'linux' && a === 'x64') return 'amd64-linux';
   throw new Error(`Unsupported platform: ${p} ${a}`);
 }
 
@@ -40,11 +41,25 @@ export function ensureBb(): string {
   }
 
   const plat = getPlatformTag();
-  const url = `https://github.com/AztecProtocol/barretenberg/releases/download/v${BB_VERSION}/bb-${plat}.tar.gz`;
+  const artifact = `barretenberg-${plat}.tar.gz`;
   const destDir = join(BB_DIR, plat);
+
+  // Try primary repo first, fall back to aztec-packages
+  const primaryUrl = `https://github.com/AztecProtocol/barretenberg/releases/download/v${BB_VERSION}/${artifact}`;
+  const fallbackUrl = `https://github.com/AztecProtocol/aztec-packages/releases/download/v${BB_VERSION}/${artifact}`;
 
   console.log(`[bb] downloading v${BB_VERSION} for ${plat}...`);
   mkdirSync(destDir, { recursive: true });
+
+  let url = primaryUrl;
+  try {
+    execSync(`curl -sIL -o /dev/null -w '%{http_code}' "${primaryUrl}" | grep -q 200`, {
+      stdio: 'pipe',
+      timeout: 15_000,
+    });
+  } catch {
+    url = fallbackUrl;
+  }
 
   execSync(`curl -sL "${url}" | tar xz -C "${destDir}"`, {
     stdio: 'pipe',
