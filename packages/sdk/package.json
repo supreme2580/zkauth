@@ -5,6 +5,8 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": "github:supreme2580/zkauth",
+  "homepage": "https://github.com/supreme2580/zkauth",
   "exports": {
     ".": "./dist/index.js",
     "./circuit.json": "./dist/circuit.json"
