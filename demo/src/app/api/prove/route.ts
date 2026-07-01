@@ -1,35 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { execSync } from 'child_process';
-import { existsSync, mkdtempSync, writeFileSync, readFileSync, readdirSync, rmSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Try multiple possible paths to find bb and circuit
-function findAsset(relativePath: string): string {
-  const possibleRoots = [
-    process.cwd(),
-    dirname(dirname(dirname(dirname(dirname(__dirname))))),
-    dirname(dirname(dirname(dirname(__dirname)))),
-    dirname(dirname(dirname(__dirname))),
-    dirname(dirname(__dirname)),
-    dirname(__dirname),
-    __dirname,
-  ];
-
-  for (const root of possibleRoots) {
-    const fullPath = join(root, relativePath);
-    if (existsSync(fullPath)) {
-      return fullPath;
-    }
-  }
-  throw new Error(`Could not find ${relativePath} in any known location`);
-}
-
-const bbPath =
-  process.env.BB_PATH || findAsset('bin/bb');
+import { mkdtempSync, writeFileSync, readFileSync, readdirSync, rmSync } from 'fs';
+import { join } from 'path';
+import { ensureBb } from '@/lib/bb';
 
 export async function POST(req: NextRequest) {
   const { witness } = await req.json();
@@ -38,12 +11,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'missing witness (base64)' }, { status: 400 });
   }
 
-  console.log('[zkPay-prove] bbPath:', bbPath);
-  console.log('[zkPay-prove] bbPath exists:', existsSync(bbPath));
-
-  if (!existsSync(bbPath)) {
-    return NextResponse.json({ error: `bb binary not found at ${bbPath}` }, { status: 500 });
-  }
+  // Ensure bb is installed (downloads & caches if missing)
+  const bbPath = ensureBb();
 
   const tmpDir = mkdtempSync('/tmp/zkpay-prove-');
   try {
@@ -51,9 +20,8 @@ export async function POST(req: NextRequest) {
     writeFileSync(witnessPath, Buffer.from(witness, 'base64'));
 
     // Copy circuit to tmp dir so Next.js file watcher doesn't interfere with bb
-    const circuitPath = findAsset('public/circuit.json');
+    const circuitPath = join(process.cwd(), 'public', 'circuit.json');
     const circuitTmpPath = join(tmpDir, 'circuit.json');
-    console.log('[zkPay-prove] circuitPath:', circuitPath);
     writeFileSync(circuitTmpPath, readFileSync(circuitPath));
 
     const outDir = join(tmpDir, 'out');
