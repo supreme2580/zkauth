@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { execSync } from 'child_process';
 import { mkdtempSync, writeFileSync, readFileSync, readdirSync, rmSync } from 'fs';
 import { join } from 'path';
+import { ensureBb } from '@/lib/bb';
 
 export async function POST(req: NextRequest) {
   const { witness } = await req.json();
@@ -9,6 +10,9 @@ export async function POST(req: NextRequest) {
   if (!witness || typeof witness !== 'string') {
     return NextResponse.json({ error: 'missing witness (base64)' }, { status: 400 });
   }
+
+  // Ensure bb is installed (downloads & caches if missing)
+  const bbPath = ensureBb();
 
   const tmpDir = mkdtempSync('/tmp/zkpay-prove-');
   try {
@@ -21,7 +25,6 @@ export async function POST(req: NextRequest) {
     writeFileSync(circuitTmpPath, readFileSync(circuitPath));
 
     const outDir = join(tmpDir, 'out');
-    const bbPath = '/Users/victoromorogbe/.bb/bb';
 
     // Use fields-only output to avoid bb's binary header getting in the way
     // bb writes proof_fields.json with 456 hex strings and public_inputs_fields.json with 18 hex strings
