@@ -36,12 +36,6 @@ yarn-error.log*
 # vercel
 .vercel
 
-# barretenberg binary (auto-installed)
-.bb/
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# bb binary downloaded during build
-/bin/bb

@@ -1,5 +1,4 @@
 node_modules
-.bb/
 dist
 target
 .env
