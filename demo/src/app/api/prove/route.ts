@@ -40,7 +40,6 @@ export async function POST(req: NextRequest) {
 
   console.log('[zkPay-prove] bbPath:', bbPath);
   console.log('[zkPay-prove] bbPath exists:', existsSync(bbPath));
-  console.log('[zkPay-prove] demoProjectRoot:', demoProjectRoot);
 
   if (!existsSync(bbPath)) {
     return NextResponse.json({ error: `bb binary not found at ${bbPath}` }, { status: 500 });
