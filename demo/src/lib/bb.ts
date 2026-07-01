@@ -17,8 +17,12 @@ function getPlatformTag(): string {
 }
 
 export function getBbPath(): string {
-  // Allow explicit override
   if (process.env.BB_PATH) return process.env.BB_PATH;
+
+  // On Vercel, bb was downloaded during build to bin/bb
+  if (process.env.VERCEL) {
+    return join(process.cwd(), 'bin', 'bb');
+  }
 
   const binaryName = platform() === 'win32' ? 'bb.exe' : 'bb';
   return join(BB_DIR, getPlatformTag(), binaryName);
@@ -27,6 +31,13 @@ export function getBbPath(): string {
 export function ensureBb(): string {
   const bbPath = getBbPath();
   if (existsSync(bbPath)) return bbPath;
+
+  // Vercel build should have placed it; if missing, something is wrong
+  if (process.env.VERCEL) {
+    throw new Error(
+      `[bb] binary not found at ${bbPath}. Ensure vercel-build ran successfully.`,
+    );
+  }
 
   const plat = getPlatformTag();
   const url = `https://github.com/AztecProtocol/barretenberg/releases/download/v${BB_VERSION}/bb-${plat}.tar.gz`;

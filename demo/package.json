@@ -6,7 +6,8 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "vercel-build": "bash bin/install-bb.sh && next build --webpack"
   },
   "dependencies": {
     "@supreme2580/zkauth": "^0.1.1",
