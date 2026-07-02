@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@aztec/bb.js": "4.4.0",
-    "@supreme2580/zkauth": "^0.1.1",
+    "@supreme2580/zkauth": "workspace:*",
     "next": "16.2.9",
     "react": "19.2.4",
     "react-dom": "19.2.4"
