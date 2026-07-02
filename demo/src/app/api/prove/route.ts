@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     writeFileSync(witnessPath, witnessBytes);
 
     // Call bb prove
-    const circuitPath = join(process.cwd(), 'public', 'circuit.json');
+    const circuitPath = join(process.cwd(), 'public', 'circuit.acir');
     const result = spawnSync(BB_PATH, [
       'prove',
       '-s', 'ultra_honk',
