@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 import { mkdtempSync, writeFileSync, readFileSync, readdirSync, rmSync } from 'fs';
 import { join } from 'path';
 
-const bbPath = process.env.BB_PATH || join(process.cwd(), 'bin', 'bb');
+const bbPath = join(process.cwd(), 'bin', 'bb');
 
 export async function POST(req: NextRequest) {
   const { witness } = await req.json();
