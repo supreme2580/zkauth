@@ -12,8 +12,8 @@ importers:
         specifier: 4.4.0
         version: 4.4.0
       '@supreme2580/zkauth':
-        specifier: ^0.1.4
-        version: 0.1.4
+        specifier: ^0.1.5
+        version: 0.1.5
       next:
         specifier: 16.2.9
         version: 16.2.9(@babel/core@7.29.7)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -537,8 +537,8 @@ packages:
     engines: {node: '>=22.0.0'}
     hasBin: true
 
-  '@supreme2580/zkauth@0.1.4':
-    resolution: {integrity: sha512-XLTHJhEDkS3knh7zCV3yy1oePqYNYOsEbCps2MVaqgIP+GJmkcfQiEcXR9E6mVs5xrhdAYmzsEQlBoRGP+x2hg==}
+  '@supreme2580/zkauth@0.1.5':
+    resolution: {integrity: sha512-h2W+g+W+V10u8Kn7EeI8FBpqUERdrqtNRhRgyn5EtdDzBW5ZDglZO3X8ouKB9NSPD8KgfojRKsP52d7VjGN9AA==}
 
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
@@ -2630,11 +2630,12 @@ snapshots:
       - debug
       - supports-color
 
-  '@supreme2580/zkauth@0.1.4':
+  '@supreme2580/zkauth@0.1.5':
     dependencies:
       '@aztec/bb.js': 4.4.0
       '@noir-lang/noir_js': 1.0.0-beta.9
       '@stellar/stellar-sdk': 16.0.1
+      pako: 2.2.0
       react: 19.2.4
     transitivePeerDependencies:
       - debug
