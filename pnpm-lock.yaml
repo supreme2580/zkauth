@@ -12,8 +12,8 @@ importers:
         specifier: 4.4.0
         version: 4.4.0
       '@supreme2580/zkauth':
-        specifier: ^0.1.1
-        version: 0.1.1
+        specifier: ^0.1.4
+        version: 0.1.4
       next:
         specifier: 16.2.9
         version: 16.2.9(@babel/core@7.29.7)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -537,8 +537,8 @@ packages:
     engines: {node: '>=22.0.0'}
     hasBin: true
 
-  '@supreme2580/zkauth@0.1.1':
-    resolution: {integrity: sha512-ikF1ZUF8ziWtdY4QIGwRLffLVJ/OIxGeasIyEn2GM2WcSZ86qCnQwRqLfdzdZIJZjRiYeEM1sHGzCSmTOrEv7g==}
+  '@supreme2580/zkauth@0.1.4':
+    resolution: {integrity: sha512-XLTHJhEDkS3knh7zCV3yy1oePqYNYOsEbCps2MVaqgIP+GJmkcfQiEcXR9E6mVs5xrhdAYmzsEQlBoRGP+x2hg==}
 
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
@@ -2630,7 +2630,7 @@ snapshots:
       - debug
       - supports-color
 
-  '@supreme2580/zkauth@0.1.1':
+  '@supreme2580/zkauth@0.1.4':
     dependencies:
       '@aztec/bb.js': 4.4.0
       '@noir-lang/noir_js': 1.0.0-beta.9
