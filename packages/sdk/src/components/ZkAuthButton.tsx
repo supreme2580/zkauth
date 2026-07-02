@@ -41,6 +41,8 @@ export function ZkAuthButton({ privateKey: rawPrivateKey }: ZkAuthButtonProps) {
   const [lastTxUrl, setLastTxUrl] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [privateKeyCopied, setPrivateKeyCopied] = useState(false);
+  const [showPrivateKey, setShowPrivateKey] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const depositTargetRef = useRef(0);
   const depositAmountRef = useRef(0);
@@ -387,6 +389,32 @@ export function ZkAuthButton({ privateKey: rawPrivateKey }: ZkAuthButtonProps) {
                     </div>
                   )}
                   <button onClick={handleDisconnect} className="zkauth-btn-logout" style={{ marginTop: 4 }}>Disconnect</button>
+
+                  {zkAuth.identitySecretKey && (
+                    <div style={{ marginTop: 16, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 12 }}>
+                      <button onClick={() => setShowPrivateKey(p => !p)} className="zkauth-btn-link" style={{ fontSize: 12 }}>
+                        {showPrivateKey ? 'Hide' : 'Show'} Private Key
+                      </button>
+                      {showPrivateKey && (
+                        <div style={{ marginTop: 8, display: 'flex', gap: 6, alignItems: 'center' }}>
+                          <code style={{
+                            flex: 1, fontSize: 11, padding: '6px 8px', borderRadius: 6,
+                            background: 'rgba(0,0,0,0.3)', color: '#e0e0e0', wordBreak: 'break-all',
+                            fontFamily: 'monospace', lineHeight: 1.4,
+                          }}>
+                            {zkAuth.identitySecretKey}
+                          </code>
+                          <button onClick={() => {
+                            navigator.clipboard.writeText(zkAuth.identitySecretKey!);
+                            setPrivateKeyCopied(true);
+                            setTimeout(() => setPrivateKeyCopied(false), 2000);
+                          }} className="zkauth-copy-btn-sm" style={{ flexShrink: 0 }}>
+                            {privateKeyCopied ? 'Copied!' : 'Copy'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </>
               )}
 

@@ -24,20 +24,18 @@ export async function POST(req: NextRequest) {
 
     const outDir = join(tmpDir, 'out');
 
-    // Use fields-only output to avoid bb's binary header getting in the way
-    // bb writes proof_fields.json with 456 hex strings and public_inputs_fields.json with 18 hex strings
     execSync(
-      `"${bbPath}" prove -s ultra_honk --oracle_hash keccak --honk_recursion 1 --output_format fields -b "${circuitTmpPath}" -w "${witnessPath}" -o "${outDir}"`,
+      `"${bbPath}" prove -s ultra_honk --oracle_hash keccak --honk_recursion 1 --output_format json -b "${circuitTmpPath}" -w "${witnessPath}" -o "${outDir}"`,
       { timeout: 300_000, stdio: 'pipe' },
     );
 
     const outFiles = readdirSync(outDir);
     console.log('[zkPay-prove] Output files:', outFiles);
 
-    const proofFieldsFile = outFiles.find(f => f.startsWith('proof_') && f.endsWith('.json'));
-    const piFieldsFile = outFiles.find(f => f.startsWith('public_inputs_') && f.endsWith('.json'));
-    if (!proofFieldsFile || !piFieldsFile) {
-      throw new Error(`Expected proof_fields.json and public_inputs_fields.json, got: ${outFiles.join(', ')}`);
+    const proofFile = outFiles.find(f => f === 'proof.json');
+    const piFile = outFiles.find(f => f === 'public_inputs.json');
+    if (!proofFile || !piFile) {
+      throw new Error(`Expected proof.json and public_inputs.json, got: ${outFiles.join(', ')}`);
     }
 
     // Parse JSON array of hex Fr strings → concatenated 32-byte BE field elements
@@ -49,8 +47,8 @@ export async function POST(req: NextRequest) {
         })
       );
 
-    const proofFields: string[] = JSON.parse(readFileSync(join(outDir, proofFieldsFile), 'utf8'));
-    const piFields: string[] = JSON.parse(readFileSync(join(outDir, piFieldsFile), 'utf8'));
+    const proofFields: string[] = JSON.parse(readFileSync(join(outDir, proofFile), 'utf8'));
+    const piFields: string[] = JSON.parse(readFileSync(join(outDir, piFile), 'utf8'));
 
     // proof_fields.json = 456 Fr → 456 × 32 = 14,592 bytes = PROOF_BYTES
     const proof = fieldsToBytes(proofFields);
