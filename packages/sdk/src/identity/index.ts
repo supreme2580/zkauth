@@ -1,4 +1,4 @@
-export { computeCommitment, computeNullifier, toFieldHex, bytesToHex, hexToBytes } from './crypto';
-export { generateProof } from './circuit';
-export type { ProofResult } from './circuit';
-export type { IdentityProof, DepositData } from './types';
+export { computeCommitment, computeNullifier, toFieldHex, bytesToHex, hexToBytes } from './crypto.js';
+export { generateProof, verifyProof } from './circuit.js';
+export type { ProofResult } from './circuit.js';
+export type { IdentityProof, DepositData } from './types.js';

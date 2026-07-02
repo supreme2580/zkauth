@@ -1,6 +1,6 @@
 {
   "name": "@supreme2580/zkauth",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "private": false,
   "type": "module",
   "main": "dist/index.js",
@@ -21,15 +21,13 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@aztec/bb.js": "^4.4.0",
-    "pako": "^2.2.0",
-    "@noir-lang/noir_js": "1.0.0-beta.9",
+    "@aztec/bb.js": "0.63.1",
+    "@noir-lang/noir_js": "1.0.0-beta.0",
     "@stellar/stellar-sdk": "^16.0.1",
     "react": "^19"
   },
   "devDependencies": {
     "@types/node": "^22",
-    "@types/pako": "^2.0.4",
     "@types/react": "^19",
     "typescript": "^5"
   }
