@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     const outDir = join(tmpDir, 'out');
 
     execSync(
-      `"${bbPath}" prove -s ultra_honk --oracle_hash keccak --honk_recursion 1 --output_format json -b "${circuitTmpPath}" -w "${witnessPath}" -o "${outDir}"`,
+      `"${bbPath}" prove -s ultra_honk --oracle_hash keccak --output_format json -b "${circuitTmpPath}" -w "${witnessPath}" -o "${outDir}"`,
       { timeout: 300_000, stdio: 'pipe' },
     );
 
