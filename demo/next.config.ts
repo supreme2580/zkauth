@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  outputFileTracingIncludes: {
+    "/api/prove": ["./public/barretenberg-threads.wasm.gz"],
+  },
   webpack: (config, { isServer }) => {
     config.experiments = { ...config.experiments, asyncWebAssembly: true };
     if (!isServer) {

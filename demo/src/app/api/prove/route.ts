@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { resolve } from 'path';
 import { gzipSync } from 'zlib';
 import { Barretenberg, UltraHonkBackend } from '@aztec/bb.js';
 
-const circuitPath = join(process.cwd(), 'public', 'circuit.json');
+const root = process.cwd();
+const circuitPath = resolve(root, 'public', 'circuit.json');
+const wasmPath = resolve(root, 'public/barretenberg-threads.wasm.gz');
 
 export async function POST(req: NextRequest) {
   const { witness } = await req.json();
@@ -16,7 +18,7 @@ export async function POST(req: NextRequest) {
   const { bytecode } = JSON.parse(readFileSync(circuitPath, 'utf8')) as { bytecode: string };
   const witnessRaw = Buffer.from(witness, 'base64');
 
-  const api = await Barretenberg.new({ threads: 1 });
+  const api = await Barretenberg.new({ threads: 1, wasmPath });
 
   try {
     const backend = new UltraHonkBackend(bytecode, api);
