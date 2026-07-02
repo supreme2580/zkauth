@@ -1,4 +1,6 @@
 import { Noir, type CompiledCircuit } from '@noir-lang/noir_js';
+import { Barretenberg, UltraHonkBackend } from '@aztec/bb.js';
+import pako from 'pako';
 import { toFieldHex } from './crypto';
 import circuitData from '../../circuits/identity.json' with { type: 'json' };
 
@@ -25,27 +27,29 @@ export async function generateProof(
     nonce: toFieldHex(nonce),
   });
 
-  onProgress?.('Generating UltraHonk proof (server-side)…');
+  onProgress?.('Downloading proving parameters (one-time)…');
+  const api = await Barretenberg.initSingleton({ threads: 1 });
 
-  const witnessB64 = btoa(String.fromCharCode(...new Uint8Array(witness)));
-
-  const resp = await fetch('/api/prove', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ witness: witnessB64 }),
+  onProgress?.('Generating UltraHonk proof…');
+  const backend = new UltraHonkBackend(circuitJson.bytecode, api);
+  const witnessRaw = new Uint8Array(witness);
+  const result = await backend.generateProof(pako.gzip(witnessRaw), {
+    verifierTarget: 'evm-no-zk',
   });
 
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({ error: resp.statusText }));
-    throw new Error(err.error || 'Proof generation failed');
+  const piBytes = new Uint8Array(64);
+  for (let i = 0; i < 2 && i < result.publicInputs.length; i++) {
+    const clean = result.publicInputs[i].startsWith('0x')
+      ? result.publicInputs[i].slice(2)
+      : result.publicInputs[i];
+    const fr = clean.padStart(64, '0');
+    for (let j = 0; j < 32; j++) {
+      piBytes[i * 32 + j] = parseInt(fr.substring(j * 2, j * 2 + 2), 16);
+    }
   }
 
-  const { proof: proofB64, publicInputs: pubB64 } = await resp.json();
-  const proof = Uint8Array.from(atob(proofB64), c => c.charCodeAt(0));
-  const publicInputs = Uint8Array.from(atob(pubB64), c => c.charCodeAt(0));
-
   onProgress?.('Proof generated');
-  return { proof, publicInputs };
+  return { proof: result.proof, publicInputs: piBytes };
 }
 
 export { circuitJson };
