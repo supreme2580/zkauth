@@ -12,3 +12,4 @@ __pycache__
 *.swo
 demo/dist
 *.tgz
+prover-server/bin/*.a
