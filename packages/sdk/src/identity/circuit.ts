@@ -5,10 +5,26 @@ import { toFieldHex } from './crypto';
 import circuitData from '../../circuits/identity.json' with { type: 'json' };
 
 const circuitJson = circuitData as CompiledCircuit;
+const bytecode = (circuitData as any).bytecode as string;
 
 export interface ProofResult {
   proof: Uint8Array;
   publicInputs: Uint8Array;
+}
+
+let bbPromise: Promise<Barretenberg> | null = null;
+let backendPromise: Promise<UltraHonkBackend> | null = null;
+
+async function getBackend(): Promise<UltraHonkBackend> {
+  if (backendPromise) return backendPromise;
+  backendPromise = (async () => {
+    if (!bbPromise) {
+      bbPromise = Barretenberg.new();
+    }
+    const bb = await bbPromise;
+    return new UltraHonkBackend(bytecode, bb);
+  })();
+  return backendPromise;
 }
 
 export async function generateProof(
@@ -27,29 +43,27 @@ export async function generateProof(
     nonce: toFieldHex(nonce),
   });
 
-  onProgress?.('Downloading proving parameters (one-time)…');
-  const api = await Barretenberg.initSingleton({ threads: 1 });
+  onProgress?.('Generating UltraHonk proof (local)…');
 
-  onProgress?.('Generating UltraHonk proof…');
-  const backend = new UltraHonkBackend(circuitJson.bytecode, api);
-  const witnessRaw = new Uint8Array(witness);
-  const result = await backend.generateProof(pako.gzip(witnessRaw), {
-    verifierTarget: 'evm-no-zk',
+  const witnessBuf = new Uint8Array(witness);
+  const compressedWitness = pako.gzip(witnessBuf);
+
+  const backend = await getBackend();
+  const { proof, publicInputs } = await backend.generateProof(compressedWitness, {
+    verifierTarget: 'evm',
   });
 
-  const piBytes = new Uint8Array(64);
-  for (let i = 0; i < 2 && i < result.publicInputs.length; i++) {
-    const clean = result.publicInputs[i].startsWith('0x')
-      ? result.publicInputs[i].slice(2)
-      : result.publicInputs[i];
-    const fr = clean.padStart(64, '0');
+  const pubBytes = new Uint8Array(publicInputs.length * 32);
+  for (let i = 0; i < publicInputs.length; i++) {
+    const hex = publicInputs[i].startsWith('0x') ? publicInputs[i].slice(2) : publicInputs[i];
+    const bytes = hex.match(/.{1,2}/g)?.map(b => parseInt(b, 16)) ?? [];
     for (let j = 0; j < 32; j++) {
-      piBytes[i * 32 + j] = parseInt(fr.substring(j * 2, j * 2 + 2), 16);
+      pubBytes[i * 32 + j] = bytes[j] ?? 0;
     }
   }
 
   onProgress?.('Proof generated');
-  return { proof: result.proof, publicInputs: piBytes };
+  return { proof, publicInputs: pubBytes };
 }
 
 export { circuitJson };
