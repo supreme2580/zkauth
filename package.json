@@ -1,7 +1,0 @@
-{
-  "private": true,
-  "scripts": {
-    "build": "cd demo && npm install && npm run build",
-    "dev": "cd demo && npm run dev"
-  }
-}
