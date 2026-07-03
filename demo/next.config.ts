@@ -1,8 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["@aztec/bb.js"],
+  outputFileTracingRoot: __dirname,
   outputFileTracingIncludes: {
     "/api/prove": ["./bin/bb"],
+    "/_not-found": ["./node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/*.wasm"],
+    "/": ["./node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/*.wasm"],
   },
   webpack: (config, { isServer }) => {
     config.experiments = { ...config.experiments, asyncWebAssembly: true };
